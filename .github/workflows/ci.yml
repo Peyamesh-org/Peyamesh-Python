@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e . ruff mypy "Django>=4.2" fastapi "sqlalchemy[asyncio]>=2"
+      - run: ruff check src tests
+      - run: ruff format --check src tests
+      - run: mypy
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+      - run: pip install -e . pytest pytest-django anyio aiosqlite "Django>=4.2" fastapi "sqlalchemy[asyncio]>=2"
+      - run: pytest
+
+  minimum-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - run: >-
+          pip install -e . "httpx==0.24.1" "Django==4.2.*" "fastapi==0.100.0" "sqlalchemy[asyncio]==2.0.0"
+          "anyio<4" pytest pytest-django aiosqlite
+      - run: pytest
+
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: peyamesh
+          POSTGRES_PASSWORD: peyamesh
+          POSTGRES_DB: peyamesh
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U peyamesh" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PEYAMESH_TEST_POSTGRES: postgres://peyamesh:peyamesh@localhost:5432/peyamesh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: >-
+          pip install -e . pytest pytest-django anyio aiosqlite "Django>=4.2" fastapi "sqlalchemy[asyncio]>=2"
+          "psycopg[binary]" asyncpg
+      - run: pytest tests/test_django.py tests/test_fastapi.py
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build twine
+      - run: python -m build
+      - run: twine check --strict dist/*

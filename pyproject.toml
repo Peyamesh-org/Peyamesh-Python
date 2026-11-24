@@ -1,0 +1,135 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "peyamesh"
+dynamic = ["version"]
+description = "Official Python SDK for the Peyamesh payment gateway, with plug-and-play Django and FastAPI integrations."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [{ name = "Peyamesh" }]
+keywords = [
+    "peyamesh",
+    "payment",
+    "payment-gateway",
+    "iran",
+    "shaparak",
+    "django",
+    "fastapi",
+    "ipg",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Framework :: FastAPI",
+    "Framework :: AsyncIO",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = ["httpx>=0.24,<1"]
+
+[project.optional-dependencies]
+django = ["Django>=4.2"]
+fastapi = ["fastapi>=0.100", "sqlalchemy[asyncio]>=2.0"]
+
+[project.urls]
+Homepage = "https://peyamesh.ir"
+Documentation = "https://peyamesh.ir/docs"
+Source = "https://github.com/Peyamesh-org/Peyamesh-Python"
+Changelog = "https://github.com/Peyamesh-org/Peyamesh-Python/blob/master/CHANGELOG.md"
+Issues = "https://github.com/Peyamesh-org/Peyamesh-Python/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.4",
+    "pytest-django>=4.7",
+    "anyio>=4",
+    "aiosqlite>=0.19",
+    "Django>=4.2",
+    "fastapi>=0.100",
+    "sqlalchemy[asyncio]>=2.0",
+    "ruff>=0.5",
+    "mypy>=1.8",
+    "build>=1.0",
+    "twine>=5",
+]
+
+[tool.hatch.version]
+path = "src/peyamesh/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/peyamesh",
+    "tests",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/peyamesh"]
+
+# --------------------------------------------------------------------------- tooling
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+DJANGO_SETTINGS_MODULE = "tests.django_project.settings"
+django_find_project = false
+pythonpath = [".", "src"]
+addopts = "-ra --strict-markers"
+filterwarnings = ["error::DeprecationWarning:peyamesh.*", "ignore:.*starlette.testclient.*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "DTZ", "ASYNC"]
+ignore = [
+    "RUF001", # Persian text contains look-alike characters by design
+    "RUF002",
+    "RUF003",
+    "UP007",  # keep Optional[...] readable on 3.9
+    "UP045",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "B011", "DTZ001", "RUF012"]
+"src/peyamesh/contrib/django/migrations/**" = ["E501", "RUF012"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src/peyamesh"]
+exclude = ["src/peyamesh/contrib/django/migrations/"]
+strict = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Django ships without type stubs: its ORM returns Any.
+module = ["peyamesh.contrib.django.*"]
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+warn_return_any = false
