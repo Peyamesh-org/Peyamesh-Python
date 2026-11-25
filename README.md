@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/peyamesh.svg)](https://pypi.org/project/peyamesh/)
 [![Python](https://img.shields.io/pypi/pyversions/peyamesh.svg)](https://pypi.org/project/peyamesh/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Peyamesh-org/Peyamesh-Python/blob/master/LICENSE)
 
 اتصال هر پروژه‌ی پایتونی به درگاه پرداخت اینترنتی **پیامش**، در چند خط:
 
@@ -509,7 +509,7 @@ PEYAMESH_TEST_POSTGRES=postgres://user:pass@localhost:5432/db pytest   # روی 
 ruff check src tests && ruff format --check src tests && mypy
 ```
 
-تاریخچه‌ی تغییرات در [CHANGELOG.md](CHANGELOG.md) است.
+تاریخچه‌ی تغییرات در [CHANGELOG.md](https://github.com/Peyamesh-org/Peyamesh-Python/blob/master/CHANGELOG.md) است.
 
 ## مجوز
 
